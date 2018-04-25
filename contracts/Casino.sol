@@ -1,4 +1,4 @@
-pragma solidity 0.4.20;
+pragma solidity 0.4.21;
 
 contract Casino {
   address public owner;
@@ -21,8 +21,8 @@ contract Casino {
   //Fallback function in case someone sends ether, so that it dosen't get lost
   function () public payable {}
 
-  function Casino() public {
-    owner = msg.sender();
+  function Casino(uint256 _minimumBet) public {
+    owner = msg.sender;
     if(_minimumBet != 0) minimumBet = _minimumBet;
   }
 
@@ -67,7 +67,7 @@ contract Casino {
       //Populating the list of winners and clearing out the players address & credentials for a new game run
       for(uint256 i = 0; i < players.length; i++) {
         address playerAddress = players[i];
-        if(playerInfo[playerAddress].numberSelected == numberWinner){
+        if(playerInfo[playerAddress].numberSelected == winner){
          winners[count] = playerAddress;
          count++;
       }
@@ -76,12 +76,17 @@ contract Casino {
 
       players.length = 0; //Delete the players array
 
-      uint256 winnerEtherAmount = totalBet/winners.length //Alloting prizes to each player according to the their total betting amount
+      uint256 winnerEtherAmount = totalBet/winners.length; //Alloting prizes to each player according to the their total betting amount
 
       for(uint256 j = 0; j < count; j++) {
         if(winners[j] != address(0)) //Checking to make sure the address isnt empty
         winners[j].transfer(winnerEtherAmount);
       }
   }
-}
+
+  function resetData() {
+    players.length = 0; //Delete all the players in the array
+    totalBet = 0;
+    numberofBets = 0;
+  }
 }
